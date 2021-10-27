@@ -12,7 +12,16 @@ const GameBoard = (function () {
     });
   };
 
-  return { fillBoard };
+  const deleteBoard = () => {
+    //borra los elementos de la grid anterior
+    const gameboar = document.querySelector(".game-board");
+    const boardPieces = document.querySelectorAll(".game-piece");
+    boardPieces.forEach(() => {
+      gameboar.removeChild(gameboar.firstChild);
+    });
+  };
+
+  return { fillBoard, deleteBoard };
 })();
 
 //player factori
@@ -26,7 +35,11 @@ const Player = function (name, symbol) {
     Game.verifyWinner(playerChoices, playerName);
   };
 
-  return { markPieces, playerChoices };
+  const resetPlayerChoices = () => {
+    playerChoices = [];
+  };
+
+  return { markPieces, playerChoices, resetPlayerChoices };
 };
 
 const Game = (function () {
@@ -38,8 +51,8 @@ const Game = (function () {
   // nombre del ganador
   let WinnerName = null;
 
-  const player1 = Player("player1", "X");
-  const player2 = Player("player2", "O");
+  const player1 = Player("Player1", "X");
+  const player2 = Player("Player2", "O");
 
   const wins = [
     [0, 1, 2],
@@ -52,12 +65,30 @@ const Game = (function () {
     [2, 4, 6],
   ];
 
+  const resetStats = () => {
+    turn = 1;
+    matchFinish = undefined;
+    WinnerName = null;
+    player1.resetPlayerChoices();
+    player2.resetPlayerChoices();
+  };
+
   //quita los listener del tablero
   const stopGame = () => {
     const pieces = document.querySelectorAll(".game-piece");
     pieces.forEach((piece) => {
       piece.removeEventListener("click", takeTurn);
     });
+  };
+
+  const displayResult = (matchF, player = "nobody") => {
+    if (matchF) {
+      resultDis.textContent = `${player} Win`;
+      resultDis.classList.remove("hide");
+    } else {
+      resultDis.textContent = `Tie,${player} Win`;
+      resultDis.classList.remove("hide");
+    }
   };
 
   // fucion que verifica si un array tiene los elementos de otro
@@ -71,17 +102,17 @@ const Game = (function () {
       //si hay ganador termina
       if (matchFinish) {
         WinnerName = playerName;
-        console.log(`ya gano player ${playerName}`);
         stopGame();
+        displayResult(matchFinish, WinnerName);
         break;
       }
     }
     if (!matchFinish && choices.length > 4) {
-      console.log("empate");
+      displayResult(matchFinish);
     }
   };
 
-  const star = () => {
+  const start = () => {
     GameBoard.fillBoard();
     markPiecesListener();
   };
@@ -107,7 +138,17 @@ const Game = (function () {
     });
   };
 
-  return { star, verifyWinner };
+  return { start, verifyWinner, resetStats };
 })();
 
-// Game.star();
+const resultDis = document.querySelector(".res");
+const btnStart = document.querySelector(".btn-start");
+const btnRestart = document.querySelector(".btn-restart");
+
+btnStart.addEventListener("click", Game.start, { once: true });
+btnRestart.addEventListener("click", () => {
+  GameBoard.deleteBoard();
+  Game.resetStats();
+  resultDis.classList.add("hide");
+  Game.start();
+});
