@@ -42,6 +42,7 @@ const Player = function (name, symbol) {
   return { markPieces, playerChoices, resetPlayerChoices };
 };
 
+//game module
 const Game = (function () {
   //turno actual 1 player 1, 2 player 2
   let turn = 1;
@@ -81,15 +82,15 @@ const Game = (function () {
     });
   };
 
-  const displayResult = (matchF, player = "nobody") => {
-    if (matchF) {
-      resultDis.textContent = `${player} Win`;
-      resultDis.classList.remove("hide");
-    } else {
-      resultDis.textContent = `Tie,${player} Win`;
-      resultDis.classList.remove("hide");
-    }
-  };
+  // const displayResult = (matchF, player = "nobody") => {
+  //   if (matchF) {
+  //     resultDis.textContent = `${player} Win`;
+  //     resultDis.classList.remove("hide");
+  //   } else {
+  //     resultDis.textContent = `Tie,${player} Win`;
+  //     resultDis.classList.remove("hide");
+  //   }
+  // };
 
   // fucion que verifica si un array tiene los elementos de otro
   const checker = (arr, targetArr) => targetArr.every((v) => arr.includes(v));
@@ -103,12 +104,12 @@ const Game = (function () {
       if (matchFinish) {
         WinnerName = playerName;
         stopGame();
-        displayResult(matchFinish, WinnerName);
+        ui.displayResult(matchFinish, WinnerName);
         break;
       }
     }
     if (!matchFinish && choices.length > 4) {
-      displayResult(matchFinish);
+      ui.displayResult(matchFinish);
     }
   };
 
@@ -141,14 +142,30 @@ const Game = (function () {
   return { start, verifyWinner, resetStats };
 })();
 
-const resultDis = document.querySelector(".res");
-const btnStart = document.querySelector(".btn-start");
-const btnRestart = document.querySelector(".btn-restart");
+//ui module
 
-btnStart.addEventListener("click", Game.start, { once: true });
-btnRestart.addEventListener("click", () => {
-  GameBoard.deleteBoard();
-  Game.resetStats();
-  resultDis.classList.add("hide");
-  Game.start();
-});
+const ui = (function () {
+  const resultDis = document.querySelector(".res");
+  const btnStart = document.querySelector(".btn-start");
+  const btnRestart = document.querySelector(".btn-restart");
+
+  const displayResult = (matchF, player = "nobody") => {
+    if (matchF) {
+      resultDis.textContent = `${player} Win`;
+      resultDis.classList.remove("hide");
+    } else {
+      resultDis.textContent = `Tie,${player} Win`;
+      resultDis.classList.remove("hide");
+    }
+  };
+
+  btnStart.addEventListener("click", Game.start, { once: true });
+  btnRestart.addEventListener("click", () => {
+    GameBoard.deleteBoard();
+    Game.resetStats();
+    resultDis.classList.add("hide");
+    Game.start();
+  });
+
+  return { displayResult };
+})();
