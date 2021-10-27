@@ -110,4 +110,4 @@ const Game = (function () {
   return { star, verifyWinner };
 })();
 
-Game.star();
+// Game.star();
